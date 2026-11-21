@@ -38,7 +38,7 @@ const S = {
   classCol: '', sortCol: '', topCol: '',
   excluded: new Set(), order: [], pv: 0, zoom: 1,
   customFonts: [],
-  out: { images: true, format: 'png', name: '', pdfClass: true, pdfAll: false, scale: 1 },
+  out: { images: true, format: 'png', name: '', pdfClass: false, pdfAll: false, scale: 1 },
 };
 const uid = () => Math.random().toString(36).slice(2, 9);
 const sel = () => S.fields.find(f => f.id === S.selId) || null;
@@ -1003,7 +1003,7 @@ $('#btnExport').onclick = () => {
   for (const c of S.cols) if (c !== S.classCol) ot.add(new Option(t('مجلد لكل: %c', { c }), c));
   ot.value = S.topCol;
   $('#oImages').checked = S.out.images; $('#oFormat').value = S.out.format; $('#oScale').value = String(S.out.scale);
-  $('#oName').value = S.out.name; $('#oPdfClass').checked = S.out.pdfClass; $('#oPdfAll').checked = S.out.pdfAll;
+  $('#oName').value = S.out.name; $('#oPdfClass').checked = false; $('#oPdfAll').checked = false;   // PDF options always start unchecked
   makeVarChips($('#oNameChips'), $('#oName'));
   renderExpClasses();
   $('#expProg').hidden = true; $('#expGo').disabled = false; $('#expCancel').textContent = t('إغلاق');
