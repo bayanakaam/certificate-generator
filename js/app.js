@@ -353,12 +353,15 @@ document.addEventListener('keydown', e => {
 
 /* ================= undo / redo ================= */
 const HIST = { stack: [], redo: [], max: 120 };
-const histState = () => JSON.stringify({ fields: S.fields, vars: S.vars, map: S.map, img: S.imgSrc.length + ':' + S.imgSrc.slice(-64) });
+const imgKey = () => S.imgSrc ? S.imgSrc.length + ':' + S.imgSrc.slice(-64) : '';
+const histState = () => JSON.stringify({ fields: S.fields, vars: S.vars, map: S.map, img: imgKey(), data: S.dataId || 0, W: S.W, H: S.H });
 const histImgs = new Map();   // image fingerprint -> data url (images are large, store once)
+const histData = new Map();   // data id -> loaded student data (kept in memory only, so a deleted file can be undone)
+let dataSeq = 0;
 function commit() {
   const s = histState();
   if (HIST.stack[HIST.stack.length - 1] === s) return;
-  if (S.imgSrc) histImgs.set(S.imgSrc.length + ':' + S.imgSrc.slice(-64), S.imgSrc);
+  if (S.imgSrc) histImgs.set(imgKey(), S.imgSrc);
   HIST.stack.push(s); if (HIST.stack.length > HIST.max) HIST.stack.shift();
   HIST.redo = []; updateUndoUI();
 }
@@ -366,8 +369,14 @@ function restore(s) {
   const d = JSON.parse(s);
   S.fields = d.fields; S.vars = d.vars; S.map = d.map;
   if (!sel()) S.selId = null;
-  const src = histImgs.get(d.img);
-  if (src && src !== S.imgSrc) setImage(src, { keepFields: true, noCommit: true });
+  if ((d.data || 0) !== (S.dataId || 0)) {
+    const ds = histData.get(d.data);
+    if (ds) Object.assign(S, ds, { excluded: new Set(ds.excluded) }); else clearDataState();
+    S.dataId = ds ? d.data : 0; $('#gsUrl').value = S.sheetSrc || '';
+    rebuildOrder();
+  }
+  if (!d.img) { if (S.img) clearImageState(); if (d.W) { S.W = d.W; S.H = d.H; } }
+  else { const src = histImgs.get(d.img); if (src && src !== S.imgSrc) setImage(src, { keepFields: true, noCommit: true }); }
   renderAllPanels(); requestRender(); saveLocal(true);
   updateUndoUI();
 }
@@ -405,7 +414,7 @@ function setImage(src, opt = {}) {
     $('#imgInfo').hidden = false; $('#dzImg').hidden = true;
     $('#imgThumb').src = src; $('#imgDims').textContent = t('%w × %h بكسل', { w: S.W, h: S.H });
     S.zoom = 1; cv.width = S.W; cv.height = S.H;
-    if (!S.fields.length) for (const v of S.vars) S.fields.push(newField(`{${v}}`, v));
+    if (!S.fields.length && !opt.keepFields) for (const v of S.vars) S.fields.push(newField(`{${v}}`, v));
     renderList(); renderVars(); layoutCanvas(); updateSteps();
     if (opt.noCommit) saveLocal(true); else saveSoon();
     if (opt.user && isMobile()) setTab('stage');
@@ -413,6 +422,29 @@ function setImage(src, opt = {}) {
   };
   im.onerror = () => toast(t('تعذر فتح الصورة'));
   im.src = src;
+}
+/* remove the image but keep S.W/S.H, so fields rescale onto the next image */
+function clearImageState() {
+  S.img = null; S.imgSrc = ''; boxes = {};
+  cv.hidden = true; $('#emptyStage').hidden = false;
+  $('#imgInfo').hidden = true; $('#dzImg').hidden = false; $('#imgThumb').removeAttribute('src');
+  lastImg = null; try { localStorage.removeItem(LS_IMG); } catch {}
+}
+function deleteImage() {
+  if (!S.img) return;
+  flushSave();
+  clearImageState(); renderAllPanels(); saveSoon();
+  toast(t('تم حذف الصورة — الحقول باقية بأماكنها. ارفع صورة جديدة (للتراجع: Ctrl+Z)'), 4500);
+}
+function newDesign() {
+  if (!S.img && !S.fields.length && !S.vars.length && !S.rows.length) return toast(t('الموقع فارغ أصلاً'));
+  if (!confirm(t('سيتم مسح الصورة والحقول والمتغيرات والبيانات والبدء من جديد. هل أنت متأكد؟'))) return;
+  flushSave();
+  clearImageState(); clearDataState(); rebuildOrder();
+  S.fields = []; S.vars = []; S.map = {}; S.selId = null; S.W = 0; S.H = 0;
+  renderAllPanels(); requestRender(); saveSoon();
+  if (isMobile()) setTab('setup');
+  toast(t('تم البدء بتصميم جديد (للتراجع: Ctrl+Z)'), 4000);
 }
 function loadImageFile(file) {
   if (!file) return;
@@ -482,7 +514,7 @@ async function loadDataFile(file) {
 }
 async function loadDataBuffer(name, buf, keep) {
   if (typeof XLSX === 'undefined') return toast(t('مكتبة قراءة Excel لم تُحمَّل — تأكد من الاتصال بالإنترنت'));
-  S.showSrc = false;
+  S.showSrc = false; flushSave();
   const prev = keep ? { classCol: S.classCol, sortCol: S.sortCol, topCol: S.topCol, pv: S.pv, excluded: new Set(S.excluded), name: S.out.name } : null;
   let wb;
   try {
@@ -536,10 +568,22 @@ async function loadDataBuffer(name, buf, keep) {
   }
   rebuildOrder();
   if (prev) S.pv = Math.min(prev.pv, S.order.length - 1);
+  S.dataId = ++dataSeq; histData.set(S.dataId, dataSnap()); saveSoon();
   refreshDataUI(); renderVars(); renderVarChips(); renderQuick(); syncProps(); updateSteps(); requestRender();
   const unlinked = S.vars.filter(v => !isLinked(v));
   if (unlinked.length) toast(t('تم تحميل %n طالب — اختر العمود المناسب للمتغيرات المعلَّمة باللون الأصفر', { n: rows.length }), 5000);
   else if (!keep) toast(t('تم تحميل %n طالب في %c صف', { n: rows.length, c: getGroups().length }));
+}
+const dataSnap = () => ({ rows: S.rows, cols: S.cols, dataName: S.dataName, sheetSrc: S.sheetSrc, classCol: S.classCol, sortCol: S.sortCol, topCol: S.topCol, excluded: [...S.excluded], pv: 0 });
+function clearDataState() {
+  Object.assign(S, { rows: [], cols: [], dataName: '', sheetSrc: '', classCol: '', sortCol: '', topCol: '', order: [], pv: 0, showSrc: false, dataId: 0 });
+  S.excluded = new Set(); $('#gsUrl').value = '';
+}
+function deleteData() {
+  if (!S.rows.length) return;
+  flushSave();
+  clearDataState(); rebuildOrder(); renderAllPanels(); requestRender(); saveSoon();
+  toast(t('تم حذف بيانات الطلاب — المتغيرات باقية. ارفع الملف الجديد (للتراجع: Ctrl+Z)'), 4500);
 }
 function refreshDataUI() {
   const has = S.rows.length > 0;
@@ -959,6 +1003,9 @@ bindDrop($('#dzImg'), $('#inImg'), loadImageFile);
 bindDrop($('#emptyStage'), $('#inImg'), loadImageFile);
 bindDrop($('#dzData'), $('#inData'), loadDataFile);
 $('#btnChangeImg').onclick = () => $('#inImg').click();
+$('#btnDelImg').onclick = deleteImage;
+$('#btnDelData').onclick = deleteData;
+$('#btnNew').onclick = newDesign;
 document.addEventListener('dragover', e => e.preventDefault());
 document.addEventListener('drop', e => {
   e.preventDefault();

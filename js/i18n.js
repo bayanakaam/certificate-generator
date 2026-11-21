@@ -127,6 +127,13 @@ const EN = {
   'جميع الشهادات مرتبة حسب الصف.pdf': 'All certificates by class.pdf', 'جاري ضغط الملف...': 'Compressing...', 'الشهادات': 'Certificates',
   '✓ تم توليد %n شهادة في %c صف — تم تحميل ملف ZIP': '✓ Generated %n certificates in %c classes — ZIP downloaded',
   'تم! افتح ملف ZIP المحمَّل': 'Done! Open the downloaded ZIP file', 'تم الإيقاف': 'Stopped', 'حدث خطأ: ': 'An error occurred: ',
+  // ---- delete / new design ----
+  'تصميم جديد': 'New design', 'ابدأ تصميماً جديداً (يمسح كل شيء)': 'Start a new design (clears everything)',
+  'حذف الصورة': 'Remove image', 'حذف البيانات': 'Remove data', 'الموقع فارغ أصلاً': 'Everything is already empty',
+  'تم حذف الصورة — الحقول باقية بأماكنها. ارفع صورة جديدة (للتراجع: Ctrl+Z)': 'Image removed — fields stay in place. Upload a new image (undo: Ctrl+Z)',
+  'تم حذف بيانات الطلاب — المتغيرات باقية. ارفع الملف الجديد (للتراجع: Ctrl+Z)': 'Student data removed — variables are kept. Upload the new file (undo: Ctrl+Z)',
+  'سيتم مسح الصورة والحقول والمتغيرات والبيانات والبدء من جديد. هل أنت متأكد؟': 'This clears the image, fields, variables and data and starts over. Are you sure?',
+  'تم البدء بتصميم جديد (للتراجع: Ctrl+Z)': 'Started a new design (undo: Ctrl+Z)',
   // ---- tour ----
   'أهلاً بك في مولّد الشهادات 👋': 'Welcome to Certificate Generator 👋',
   'في دقيقة واحدة تصنع شهادة لكل طالب من ملف Excel، مرتبة حسب الصف. خذ جولة سريعة (5 خطوات).': 'Make a certificate for every student from an Excel file in a minute, sorted by class. Take a quick tour (5 steps).',
