@@ -123,6 +123,9 @@ input[type=color]{width:40px;height:36px;border:1px solid var(--line-2);border-r
 .vtag.add{background:#eff6ff;color:var(--sel);border:0;cursor:pointer;font-family:inherit}
 .vtag.add:hover{background:#dbeafe}
 
+.or{display:flex;align-items:center;gap:8px;color:var(--muted);font-size:12.5px;margin:12px 0 8px}
+.or::before,.or::after{content:"";flex:1;height:1px;background:var(--line)}
+
 /* ---------- field list ---------- */
 .flist{list-style:none;margin:0;padding:0;display:flex;flex-direction:column;gap:6px}
 .fitem{display:flex;align-items:center;gap:8px;padding:8px 10px;border:1px solid var(--line);border-radius:9px;cursor:pointer;background:#fff}
@@ -266,7 +269,10 @@ tr.grp td{background:var(--accent-soft);color:#115e59;font-weight:800}
     <section class="card">
       <h3><span class="step" id="st2">3</span> ملف Excel (بيانات الطلاب)</h3>
       <div id="dataInfo" hidden>
-        <div class="file-line"><b id="dataName"></b><span class="cnt" id="dataCount"></span><button class="link" id="btnViewData">عرض</button></div>
+        <div class="file-line"><b id="dataName"></b><span class="cnt" id="dataCount"></span><button class="link" id="btnViewData">عرض</button><button class="link" id="btnChangeData">تغيير</button></div>
+        <button class="btn small block" id="btnGsRefresh" hidden style="margin:-4px 0 10px">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M21 12a9 9 0 1 1-3-6.7L21 8M21 3v5h-5"/></svg>
+          تحديث البيانات من Google Sheets</button>
         <label class="fld">عمود الصف <span class="sub">(تُقسَّم وتُرتَّب الشهادات حسبه)</span><select id="selClass"></select></label>
         <label class="fld">ترتيب الطلاب داخل كل صف<select id="selSort"></select></label>
         <div class="chip-label" style="margin-bottom:6px">الصفوف الموجودة في الملف (بالترتيب):</div>
@@ -277,6 +283,14 @@ tr.grp td{background:var(--accent-soft);color:#115e59;font-weight:800}
         <b>اسحب ملف Excel أو CSV هنا</b>الصف الأول في الملف = أسماء الأعمدة
       </div>
       <input type="file" id="inData" accept=".xlsx,.xls,.xlsm,.ods,.csv,.txt" hidden>
+      <div id="gsBox">
+        <div class="or"><span>أو من Google Sheets</span></div>
+        <div class="var-add" style="margin-bottom:4px">
+          <input id="gsUrl" placeholder="الصق رابط الجدول هنا" dir="ltr" style="text-align:left">
+          <button class="btn" id="btnGs">جلب</button>
+        </div>
+        <p class="note" style="margin:0">يجب أن يكون الجدول مُشاركاً: «مشاركة ← أي شخص لديه الرابط ← عارض». تُقرأ كل الأوراق.</p>
+      </div>
       <div style="margin-top:8px;font-size:12.5px"><button class="link" id="dlSample">تحميل ملف Excel نموذجي</button></div>
     </section>
 
@@ -837,8 +851,13 @@ function pickCol(cols, regs, avoid) {
 }
 async function loadDataFile(file) {
   if (!file) return;
+  S.sheetSrc = '';
+  return loadDataBuffer(file.name, await file.arrayBuffer());
+}
+async function loadDataBuffer(name, buf, keep) {
   if (typeof XLSX === 'undefined') return toast('مكتبة قراءة Excel لم تُحمَّل — تأكد من الاتصال بالإنترنت');
-  const name = file.name, buf = await file.arrayBuffer();
+  S.showSrc = false;
+  const prev = keep ? { classCol: S.classCol, sortCol: S.sortCol, topCol: S.topCol, pv: S.pv, excluded: new Set(S.excluded), name: S.out.name } : null;
   let wb;
   try {
     if (/\.(csv|txt|tsv)$/i.test(name)) {
@@ -881,14 +900,25 @@ async function loadDataFile(file) {
   if (!S.classCol) S.classCol = viaVar(/صف|فصل|شعب/);
   if (!S.sortCol || S.sortCol === cols[0]) S.sortCol = viaVar(/اسم.*طالب|^الاسم|طالب/) || S.sortCol;
   S.out.name = S.sortCol ? `{${S.sortCol}}` : '';
-  rebuildOrder(); refreshDataUI(); renderVars(); renderVarChips(); renderQuick(); syncProps(); updateSteps(); requestRender();
+  if (prev) {   // refreshing the same source: keep the user's choices if the columns still exist
+    const ok = c => !c || cols.includes(c);
+    if (ok(prev.classCol)) S.classCol = prev.classCol;
+    if (ok(prev.sortCol)) S.sortCol = prev.sortCol;
+    if (ok(prev.topCol)) S.topCol = prev.topCol;
+    S.excluded = prev.excluded;
+    if (prev.name) S.out.name = prev.name;
+  }
+  rebuildOrder();
+  if (prev) S.pv = Math.min(prev.pv, S.order.length - 1); refreshDataUI(); renderVars(); renderVarChips(); renderQuick(); syncProps(); updateSteps(); requestRender();
   const unlinked = S.vars.filter(v => !isLinked(v));
   if (unlinked.length) toast(`تم تحميل ${rows.length} طالب — اختر العمود المناسب للمتغيرات المعلَّمة باللون الأصفر`, 5000);
   else toast(`تم تحميل ${rows.length} طالب في ${getGroups().length} صف`);
 }
 function refreshDataUI() {
   const has = S.rows.length > 0;
-  $('#dataInfo').hidden = !has; $('#dzData').hidden = has;
+  $('#dataInfo').hidden = !has;
+  $('#dzData').hidden = $('#gsBox').hidden = has && !S.showSrc;
+  $('#btnGsRefresh').hidden = !S.sheetSrc;
   if (!has) return;
   $('#dataName').textContent = S.dataName; $('#dataCount').textContent = `${S.rows.length} طالب`;
   const sc = $('#selClass'), ss = $('#selSort');
@@ -906,6 +936,42 @@ function refreshDataUI() {
   }
   refreshPreviewSel();
 }
+/* ---------- Google Sheets ---------- */
+function sheetExportUrl(u) {
+  u = String(u || '').trim();
+  let m = u.match(/\/spreadsheets\/d\/e\/([\w-]+)/);           // "Publish to web" link
+  if (m) return `https://docs.google.com/spreadsheets/d/e/${m[1]}/pub?output=xlsx`;
+  m = u.match(/\/spreadsheets\/d\/([\w-]{20,})/) || u.match(/^([\w-]{30,})$/);
+  if (m) return `https://docs.google.com/spreadsheets/d/${m[1]}/export?format=xlsx`;
+  return null;
+}
+async function loadFromSheet(url, keep) {
+  const ex = sheetExportUrl(url);
+  if (!ex) return toast('الرابط غير صحيح — انسخ رابط الجدول من شريط العنوان في Google Sheets', 5000);
+  const btns = [$('#btnGs'), $('#btnGsRefresh')];
+  btns.forEach(b => b.disabled = true); toast('جاري جلب البيانات من Google Sheets...', 10000);
+  try {
+    let r;
+    try { r = await fetch(ex, { cache: 'no-store' }); } catch { throw new Error('private'); }
+    if (!r.ok) throw new Error(r.status === 404 ? 'notfound' : 'private');
+    const buf = await r.arrayBuffer(), sig = new Uint8Array(buf, 0, Math.min(2, buf.byteLength));
+    if (!(sig[0] === 0x50 && sig[1] === 0x4b)) throw new Error('private');   // a real .xlsx starts with "PK"
+    S.sheetSrc = url.trim(); $('#gsUrl').value = S.sheetSrc;
+    await loadDataBuffer('جدول Google Sheets', buf, keep);
+    if (keep) toast(`✓ تم تحديث البيانات — ${S.rows.length} طالب`);
+    saveSoon();
+  } catch (e) {
+    if (/^(file|data):$/.test(location.protocol) && e.message === 'private')
+      return toast('الجلب من Google Sheets يعمل من النسخة المنشورة على الإنترنت فقط: bayanakaam.github.io/certificate-generator', 8000);
+    toast(e.message === 'notfound' ? 'لم يُعثر على الجدول — تأكد من الرابط'
+      : 'تعذر الوصول للجدول — افتحه في Google Sheets واضغط «مشاركة» ثم اختر «أي شخص لديه الرابط»', 7000);
+  } finally { btns.forEach(b => b.disabled = false); }
+}
+$('#btnGs').onclick = () => loadFromSheet($('#gsUrl').value, false);
+$('#gsUrl').addEventListener('keydown', e => { if (e.key === 'Enter') { e.preventDefault(); $('#btnGs').click(); } });
+$('#btnGsRefresh').onclick = () => loadFromSheet(S.sheetSrc, true);
+$('#btnChangeData').onclick = () => { S.showSrc = !S.showSrc; refreshDataUI(); };
+
 function refreshPreviewSel() {
   const s = $('#pvSel'); s.innerHTML = '';
   if (!S.order.length) { s.add(new Option('— حمّل ملف البيانات لمعاينة الأسماء —', '')); $('#pvInfo').textContent = ''; return; }
@@ -1189,7 +1255,7 @@ $('#inFont').onchange = async e => {
 /* ================= save / load ================= */
 let saveT = 0;
 function snapshot() {
-  return { v: 1, W: S.W, H: S.H, fields: S.fields, vars: S.vars, map: S.map, out: S.out };
+  return { v: 1, W: S.W, H: S.H, fields: S.fields, vars: S.vars, map: S.map, out: S.out, sheetUrl: S.sheetSrc || $('#gsUrl').value.trim() };
 }
 function saveSoon() { clearTimeout(saveT); saveT = setTimeout(saveLocal, 400); updateSteps(); }
 let lastImg = null;
@@ -1205,6 +1271,7 @@ function applySnapshot(d) {
   S.out = { ...S.out, ...(d.out || {}) };
   S.vars = Array.isArray(d.vars) ? d.vars.slice() : [];
   S.map = { ...(d.map || {}) };
+  if (d.sheetUrl) $('#gsUrl').value = d.sheetUrl;
   if (S.cols.length) autoMap();
   S.selId = null; renderList(); renderVars(); renderVarChips(); renderQuick(); syncProps();
 }
@@ -1398,7 +1465,7 @@ try {
   if (img) { lastImg = img; setImage(img); }
 } catch {}
 renderList(); renderVars(); updateSteps();
-window.__cert = { S, setImage, loadDataFile, addField, select, requestRender, getGroups };
+window.__cert = { S, setImage, loadDataFile, loadFromSheet, addField, select, requestRender, getGroups };
 })();
 </script>
 </body>
