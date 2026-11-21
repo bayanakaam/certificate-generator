@@ -7,18 +7,6 @@ const $$ = (s, r = document) => [...r.querySelectorAll(s)];
 const collator = new Intl.Collator(['ar', 'en'], { numeric: true, sensitivity: 'base' });
 const LS_KEY = 'certgen.v1', LS_IMG = 'certgen.v1.img', LS_FONTS = 'certgen.v1.fonts', LS_TOUR = 'certgen.tour';
 
-/* ================= usage stats (GoatCounter: no cookies, no personal data) ================= */
-const GC_CODE = '';   // ← GoatCounter site code, e.g. 'certgen'
-const statsOn = GC_CODE && /^https?:$/.test(location.protocol) && !/^(localhost|127\.)/.test(location.hostname);
-if (statsOn) {
-  const s = document.createElement('script');
-  s.async = true; s.src = 'https://gc.zgo.at/count.js'; s.dataset.goatcounter = `https://${GC_CODE}.goatcounter.com/count`;
-  document.head.appendChild(s);
-}
-function track(name, title) {
-  if (!statsOn) return;
-  try { window.goatcounter?.count?.({ path: name, title: title || name, event: true }); } catch {}
-}
 
 /* ================= fonts ================= */
 const GF_AR = [
@@ -480,7 +468,6 @@ async function applyTemplate(tp) {
     keepFields: true, user: true,
     done: () => { S.fields = fields; renderAllPanels(); requestRender(); saveSoon(); toast(t('✓ تم تطبيق القالب — اضغط على أي نص لتعديله')); },
   });
-  track('template-' + tp.id, tp.name.en);
 }
 
 /* ================= data ================= */
@@ -553,7 +540,6 @@ async function loadDataBuffer(name, buf, keep) {
   const unlinked = S.vars.filter(v => !isLinked(v));
   if (unlinked.length) toast(t('تم تحميل %n طالب — اختر العمود المناسب للمتغيرات المعلَّمة باللون الأصفر', { n: rows.length }), 5000);
   else if (!keep) toast(t('تم تحميل %n طالب في %c صف', { n: rows.length, c: getGroups().length }));
-  track('data-loaded');
 }
 function refreshDataUI() {
   const has = S.rows.length > 0;
@@ -601,7 +587,6 @@ async function loadFromSheet(url, keep) {
     S.sheetSrc = url.trim(); $('#gsUrl').value = S.sheetSrc;
     await loadDataBuffer(t('جدول Google Sheets'), buf, keep);
     if (keep) toast(t('✓ تم تحديث البيانات — %n طالب', { n: S.rows.length }));
-    track('gsheet');
     saveSoon();
   } catch (e) {
     if (/^(file|data):$/.test(location.protocol) && e.message === 'private')
@@ -1123,7 +1108,6 @@ $('#expGo').onclick = async () => {
     download(blob, `${t('الشهادات')} ${d.getFullYear()}-${d.getMonth() + 1}-${d.getDate()}.zip`);
     progress(total, total, t('✓ تم توليد %n شهادة في %c صف — تم تحميل ملف ZIP', { n: total, c: groups.length }));
     toast(t('تم! افتح ملف ZIP المحمَّل'));
-    track('generate', `${total} certificates`);
   } catch (err) {
     if (err.message === 'cancel') progress(0, 1, t('تم الإيقاف'));
     else { console.error(err); progress(0, 1, t('حدث خطأ: ') + err.message); }
@@ -1217,7 +1201,6 @@ function updateLangBtn() {
 $('#btnLang').onclick = () => {
   const next = isEn() ? 'ar' : 'en';
   window.I18N.setLang(next);
-  track('lang-' + next);
 };
 window.I18N.onLang(() => {
   updateLangBtn(); buildFontSelect(); rebuildOrder(); renderAllPanels(); requestRender();

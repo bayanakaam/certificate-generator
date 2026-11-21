@@ -61,7 +61,7 @@ const EN = {
   'الشفافية': 'Opacity', 'تأثيرات': 'Effects', 'إطار حول الحروف': 'Text outline', 'ظل': 'Shadow', 'النعومة': 'Blur',
   // ---- footer / mobile ----
   'بياناتك لا تغادر جهازك — كل المعالجة تتم داخل متصفحك': 'Your data never leaves your device — everything runs in your browser',
-  'كيف أستخدم الموقع؟': 'How does it work?', 'اقتراح أو مشكلة؟': 'Suggestion or problem?',
+  'كيف أستخدم الموقع؟': 'How does it work?',
   'الإعداد': 'Setup', 'الشهادة': 'Certificate', 'التنسيق': 'Style',
   // ---- dialogs ----
   'اختر تصميماً — يمكنك تعديل كل النصوص والخطوط والألوان بعدها': 'Pick a design — you can edit every text, font and color afterwards',
