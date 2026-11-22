@@ -42,7 +42,7 @@ const EN = {
   'اضغط «توليد الشهادات» — تحصل على مجلد لكل صف.': 'Click “Generate certificates” — you get a folder per class.',
   'اسحب الحقل لتحريكه': 'Drag a field to move it', 'اسحب الزوايا لتكبير الخط': 'Drag the corners to resize',
   'الأسهم': 'Arrows', 'تحريك دقيق، مع': 'fine move, with', 'أثناء السحب لإلغاء المحاذاة التلقائية': 'while dragging to turn off snapping',
-  'تراجع': 'undo', 'تكرار،': 'duplicate,', 'حذف': 'Delete',
+  'تراجع': 'Undo', 'تكرار،': 'duplicate,', 'حذف': 'Delete',
   // ---- properties ----
   'اختر حقلاً من الشهادة أو من قائمة الحقول': 'Select a field on the certificate or in the field list',
   'لتعديل الخط واللون والموضع': 'to edit its font, color and position',
@@ -134,6 +134,16 @@ const EN = {
   'تم حذف بيانات الطلاب — المتغيرات باقية. ارفع الملف الجديد (للتراجع: Ctrl+Z)': 'Student data removed — variables are kept. Upload the new file (undo: Ctrl+Z)',
   'سيتم مسح الصورة والحقول والمتغيرات والبيانات والبدء من جديد. هل أنت متأكد؟': 'This clears the image, fields, variables and data and starts over. Are you sure?',
   'تم البدء بتصميم جديد (للتراجع: Ctrl+Z)': 'Started a new design (undo: Ctrl+Z)',
+  // ---- large UI / dialogs ----
+  'إعادة': 'Redo', 'مساعدة': 'Help', 'شرح طريقة استخدام الموقع': 'How to use the site',
+  'تراجع عن آخر خطوة (Ctrl+Z)': 'Undo the last step (Ctrl+Z)', 'إعادة الخطوة (Ctrl+Y)': 'Redo (Ctrl+Y)',
+  'تغيير الصورة': 'Change image', 'إلغاء': 'Cancel',
+  'البدء بتصميم جديد؟': 'Start a new design?', 'نعم، امسح كل شيء': 'Yes, clear everything',
+  'استبدال التصميم الحالي؟': 'Replace the current design?', 'نعم، استخدم القالب': 'Yes, use the template',
+  'تغيير اسم المتغير': 'Rename variable', 'اكتب الاسم الجديد:': 'Type the new name:', 'حفظ': 'Save',
+  'تم حذف الصورة — الحقول باقية بأماكنها.': 'Image removed — fields stay in place.',
+  'تم حذف بيانات الطلاب — المتغيرات باقية.': 'Student data removed — variables are kept.',
+  'تم مسح كل شيء — يمكنك البدء من جديد.': 'Everything cleared — you can start fresh.',
   // ---- tour ----
   'أهلاً بك في مولّد الشهادات 👋': 'Welcome to Certificate Generator 👋',
   'في دقيقة واحدة تصنع شهادة لكل طالب من ملف Excel، مرتبة حسب الصف. خذ جولة سريعة (5 خطوات).': 'Make a certificate for every student from an Excel file in a minute, sorted by class. Take a quick tour (5 steps).',

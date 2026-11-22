@@ -27,7 +27,7 @@
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
 <link href="https://fonts.googleapis.com/css2?family=Tajawal:wght@400;500;700;800&family=Inter:wght@400;500;600;700;800&display=swap" rel="stylesheet">
-<link rel="stylesheet" href="css/style.css?v=5">
+<link rel="stylesheet" href="css/style.css?v=7">
 <script src="https://cdnjs.cloudflare.com/ajax/libs/xlsx/0.18.5/xlsx.full.min.js"></script>
 <script src="https://cdnjs.cloudflare.com/ajax/libs/jszip/3.10.1/jszip.min.js"></script>
 <script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js"></script>
@@ -40,19 +40,21 @@
     <span class="bname">مولّد الشهادات</span> <small>— شهادة لكل طالب، مرتبة حسب الصف</small>
   </div>
   <div class="top-actions">
-    <button class="btn ghost sq flip-rtl" id="btnUndo" title="تراجع (Ctrl+Z)" disabled><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M9 14 4 9l5-5"/><path d="M4 9h10.5a5.5 5.5 0 0 1 0 11H11"/></svg></button>
-    <button class="btn ghost sq flip-rtl" id="btnRedo" title="إعادة (Ctrl+Y)" disabled><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="m15 14 5-5-5-5"/><path d="M20 9H9.5a5.5 5.5 0 0 0 0 11H13"/></svg></button>
+    <div class="tb-group">
+      <button class="btn tb flip-rtl" id="btnUndo" title="تراجع عن آخر خطوة (Ctrl+Z)" disabled><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M9 14 4 9l5-5"/><path d="M4 9h10.5a5.5 5.5 0 0 1 0 11H11"/></svg><span class="lbl lbl-md">تراجع</span></button>
+      <button class="btn tb flip-rtl" id="btnRedo" title="إعادة الخطوة (Ctrl+Y)" disabled><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="m15 14 5-5-5-5"/><path d="M20 9H9.5a5.5 5.5 0 0 0 0 11H13"/></svg><span class="lbl lbl-md">إعادة</span></button>
+    </div>
     <span class="tb-sep"></span>
-    <button class="btn ghost" id="btnLang" title="English"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="10"/><path d="M2 12h20M12 2a15 15 0 0 1 0 20M12 2a15 15 0 0 0 0 20"/></svg><span class="lbl" id="langLbl" data-nt>English</span></button>
-    <button class="btn ghost sq" id="btnTour" title="جولة تعريفية"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="10"/><path d="M9.1 9a3 3 0 0 1 5.8 1c0 2-3 3-3 3M12 17h.01"/></svg></button>
+    <button class="btn tb" id="btnTour" title="شرح طريقة استخدام الموقع"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="10"/><path d="M9.1 9a3 3 0 0 1 5.8 1c0 2-3 3-3 3M12 17h.01"/></svg><span class="lbl">مساعدة</span></button>
+    <button class="btn tb" id="btnLang" title="English"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="10"/><path d="M2 12h20M12 2a15 15 0 0 1 0 20M12 2a15 15 0 0 0 0 20"/></svg><span class="lbl" id="langLbl" data-nt>English</span></button>
     <span class="tb-sep"></span>
-    <button class="btn ghost" id="btnNew" title="ابدأ تصميماً جديداً (يمسح كل شيء)">
-      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M14 3H6a2 2 0 0 0-2 2v14a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V9z"/><path d="M14 3v6h6M12 12v6M9 15h6"/></svg><span class="lbl lbl-md">تصميم جديد</span></button>
-    <button class="btn ghost" id="btnSaveTpl" title="يحفظ الصورة والحقول والتنسيقات في ملف واحد لاستخدامه لاحقاً">
+    <button class="btn tb" id="btnSaveTpl" title="يحفظ الصورة والحقول والتنسيقات في ملف واحد لاستخدامه لاحقاً">
       <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M19 21H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h11l5 5v11a2 2 0 0 1-2 2z"/><path d="M17 21v-8H7v8M7 3v5h8"/></svg><span class="lbl lbl-md">حفظ التصميم</span></button>
-    <label class="btn ghost" id="lblOpenTpl" title="فتح تصميم محفوظ سابقاً (.json)">
+    <label class="btn tb" id="lblOpenTpl" title="فتح تصميم محفوظ سابقاً (.json)">
       <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M3 7a2 2 0 0 1 2-2h4l2 2h8a2 2 0 0 1 2 2v8a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2z"/></svg><span class="lbl lbl-md">فتح تصميم</span><input type="file" id="inTpl" accept=".json,application/json" hidden></label>
-    <button class="btn primary" id="btnExport" title="توليد الشهادات">
+    <button class="btn btn-new" id="btnNew" title="ابدأ تصميماً جديداً (يمسح كل شيء)">
+      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2"><path d="M14 3H6a2 2 0 0 0-2 2v14a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V9z"/><path d="M14 3v6h6M12 12v6M9 15h6"/></svg><span class="lbl">تصميم جديد</span></button>
+    <button class="btn primary btn-go" id="btnExport" title="توليد الشهادات">
       <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2"><path d="M12 3v12m0 0-4-4m4 4 4-4M4 17v2a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2v-2"/></svg><span class="lbl">توليد الشهادات</span></button>
   </div>
 </header>
@@ -67,7 +69,11 @@
       </div>
       <div id="imgInfo" hidden>
         <img class="thumb" id="imgThumb" alt="">
-        <div class="file-line"><b id="imgDims" data-nt></b><button class="link" id="btnChangeImg">تغيير</button><button class="link danger-link" id="btnDelImg" title="حذف الصورة">حذف</button></div>
+        <div class="file-line"><b id="imgDims" data-nt></b></div>
+        <div class="file-actions">
+          <button class="act" id="btnChangeImg"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M21 12a9 9 0 1 1-3-6.7L21 8M21 3v5h-5"/></svg>تغيير الصورة</button>
+          <button class="act danger" id="btnDelImg"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M3 6h18M8 6V4h8v2m-9 0 1 14h8l1-14"/></svg>حذف الصورة</button>
+        </div>
       </div>
       <div class="drop" id="dzImg">
         <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8"><rect x="3" y="3" width="18" height="18" rx="2"/><circle cx="9" cy="9" r="2"/><path d="m21 15-5-5L5 21"/></svg>
@@ -93,7 +99,12 @@
     <section class="card" id="cardData">
       <h3><span class="step" id="st2">3</span> ملف Excel (بيانات الطلاب)</h3>
       <div id="dataInfo" hidden>
-        <div class="file-line"><b id="dataName" data-nt></b><span class="cnt" id="dataCount" data-nt></span><button class="link" id="btnViewData">عرض</button><button class="link" id="btnChangeData">تغيير</button><button class="link danger-link" id="btnDelData" title="حذف البيانات">حذف</button></div>
+        <div class="file-line"><b id="dataName" data-nt></b><span class="cnt" id="dataCount" data-nt></span></div>
+        <div class="file-actions">
+          <button class="act" id="btnViewData"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M2 12s3.5-7 10-7 10 7 10 7-3.5 7-10 7S2 12 2 12z"/><circle cx="12" cy="12" r="3"/></svg>عرض</button>
+          <button class="act" id="btnChangeData"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M21 12a9 9 0 1 1-3-6.7L21 8M21 3v5h-5"/></svg>تغيير</button>
+          <button class="act danger" id="btnDelData"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M3 6h18M8 6V4h8v2m-9 0 1 14h8l1-14"/></svg>حذف</button>
+        </div>
         <button class="btn small block" id="btnGsRefresh" hidden style="margin:-4px 0 10px">
           <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M21 12a9 9 0 1 1-3-6.7L21 8M21 3v5h-5"/></svg>
           تحديث البيانات من Google Sheets</button>
@@ -333,10 +344,26 @@
   </div>
 </dialog>
 
-<div id="toast" data-nt></div>
+<!-- ============ large confirm / input dialog ============ -->
+<dialog id="dlgAsk" class="ask">
+  <form method="dialog" class="dlg">
+    <div class="dlg-b">
+      <div class="ask-ic" id="askIc"></div>
+      <h2 id="askTitle" data-nt></h2>
+      <p id="askText" data-nt></p>
+      <input id="askInput" hidden data-nt>
+    </div>
+    <div class="dlg-f">
+      <button class="btn primary" value="ok" id="askYes" data-nt></button>
+      <button class="btn" value="cancel" id="askNo" data-nt></button>
+    </div>
+  </form>
+</dialog>
 
-<script src="js/i18n.js?v=5"></script>
-<script src="js/templates.js?v=5"></script>
-<script src="js/app.js?v=5"></script>
+<div id="toast" data-nt><span id="toastMsg"></span><button id="toastAct" hidden></button></div>
+
+<script src="js/i18n.js?v=7"></script>
+<script src="js/templates.js?v=7"></script>
+<script src="js/app.js?v=7"></script>
 </body>
 </html>

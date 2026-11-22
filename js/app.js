@@ -44,9 +44,32 @@ const uid = () => Math.random().toString(36).slice(2, 9);
 const sel = () => S.fields.find(f => f.id === S.selId) || null;
 
 /* ================= helpers ================= */
-function toast(msg, ms = 2600) {
-  const el = $('#toast'); el.textContent = msg; el.classList.add('show');
-  clearTimeout(toast._t); toast._t = setTimeout(() => el.classList.remove('show'), ms);
+/* message at the bottom; optional action button (e.g. «تراجع») so nobody needs keyboard shortcuts */
+function toast(msg, ms = 4000, action) {
+  const el = $('#toast'), btn = $('#toastAct');
+  $('#toastMsg').textContent = msg;
+  btn.hidden = !action; el.classList.toggle('has-act', !!action);
+  if (action) { btn.textContent = action.label; btn.onclick = () => { el.classList.remove('show'); action.fn(); }; }
+  el.classList.add('show');
+  clearTimeout(toast._t); toast._t = setTimeout(() => el.classList.remove('show'), action ? Math.max(ms, 8000) : ms);
+}
+const undoAction = () => ({ label: t('تراجع'), fn: () => undo() });
+/* large, clear confirm / text-input window (replaces the browser's small confirm/prompt) */
+const IC_WARN = '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M12 3 2 21h20L12 3z"/><path d="M12 10v5M12 18h.01"/></svg>';
+function ask({ title, text = '', ok, cancel, danger = false, input = null, icon }) {
+  return new Promise(res => {
+    const d = $('#dlgAsk'), yes = $('#askYes'), no = $('#askNo'), inp = $('#askInput');
+    $('#askTitle').textContent = title;
+    $('#askText').textContent = text; $('#askText').hidden = !text;
+    yes.textContent = ok; no.textContent = cancel || t('إلغاء');
+    yes.className = 'btn ' + (danger ? 'danger' : 'primary');
+    $('#askIc').innerHTML = icon || IC_WARN; $('#askIc').className = 'ask-ic' + (danger ? ' red' : '');
+    inp.hidden = input == null; if (input != null) inp.value = input;
+    d.returnValue = '';
+    d.onclose = () => res(d.returnValue === 'ok' ? (input != null ? inp.value : true) : (input != null ? null : false));
+    d.showModal();
+    if (input != null) { inp.focus(); inp.select(); } else (danger ? no : yes).focus();
+  });
 }
 const AR_D = '٠١٢٣٤٥٦٧٨٩', FA_D = '۰۱۲۳۴۵۶۷۸۹';
 function convDigits(s, mode) {
@@ -434,17 +457,17 @@ function deleteImage() {
   if (!S.img) return;
   flushSave();
   clearImageState(); renderAllPanels(); saveSoon();
-  toast(t('تم حذف الصورة — الحقول باقية بأماكنها. ارفع صورة جديدة (للتراجع: Ctrl+Z)'), 4500);
+  toast(t('تم حذف الصورة — الحقول باقية بأماكنها.'), 8000, undoAction());
 }
-function newDesign() {
+async function newDesign() {
   if (!S.img && !S.fields.length && !S.vars.length && !S.rows.length) return toast(t('الموقع فارغ أصلاً'));
-  if (!confirm(t('سيتم مسح الصورة والحقول والمتغيرات والبيانات والبدء من جديد. هل أنت متأكد؟'))) return;
+  if (!await ask({ title: t('البدء بتصميم جديد؟'), text: t('سيتم مسح الصورة والحقول والمتغيرات والبيانات والبدء من جديد. هل أنت متأكد؟'), ok: t('نعم، امسح كل شيء'), danger: true })) return;
   flushSave();
   clearImageState(); clearDataState(); rebuildOrder();
   S.fields = []; S.vars = []; S.map = {}; S.selId = null; S.W = 0; S.H = 0;
   renderAllPanels(); requestRender(); saveSoon();
   if (isMobile()) setTab('setup');
-  toast(t('تم البدء بتصميم جديد (للتراجع: Ctrl+Z)'), 4000);
+  toast(t('تم مسح كل شيء — يمكنك البدء من جديد.'), 8000, undoAction());
 }
 function loadImageFile(file) {
   if (!file) return;
@@ -483,7 +506,7 @@ function openGallery(e) { e && e.stopPropagation(); renderGallery(); $('#dlgTpl'
 $('#btnTplOpen').onclick = openGallery;
 $('#btnTplOpen2').onclick = openGallery;
 async function applyTemplate(tp) {
-  if (S.fields.length && !confirm(t('سيتم استبدال الصورة والحقول الحالية بالقالب. هل تريد المتابعة؟'))) return;
+  if (S.fields.length && !await ask({ title: t('استبدال التصميم الحالي؟'), text: t('سيتم استبدال الصورة والحقول الحالية بالقالب. هل تريد المتابعة؟'), ok: t('نعم، استخدم القالب') })) return;
   const lang = window.I18N.getLang();
   $('#dlgTpl').close();
   toast(t('جاري تجهيز القالب...'), 4000);
@@ -583,7 +606,7 @@ function deleteData() {
   if (!S.rows.length) return;
   flushSave();
   clearDataState(); rebuildOrder(); renderAllPanels(); requestRender(); saveSoon();
-  toast(t('تم حذف بيانات الطلاب — المتغيرات باقية. ارفع الملف الجديد (للتراجع: Ctrl+Z)'), 4500);
+  toast(t('تم حذف بيانات الطلاب — المتغيرات باقية.'), 8000, undoAction());
 }
 function refreshDataUI() {
   const has = S.rows.length > 0;
@@ -794,8 +817,8 @@ function addVar(name) {
   else if (!S.img) toast(t('تمت إضافة «%v» — سيظهر على الشهادة عند إضافة صورتها', { v: name }));
   renderVars(); renderVarChips(); renderQuick(); syncProps(); requestRender(); saveSoon();
 }
-function renameVar(old) {
-  const nv = cleanName(prompt(t('الاسم الجديد للمتغير:'), old));
+async function renameVar(old) {
+  const nv = cleanName(await ask({ title: t('تغيير اسم المتغير'), text: t('اكتب الاسم الجديد:'), ok: t('حفظ'), input: old, icon: IC_EDIT }));
   if (!nv || nv === old) return;
   if (S.vars.includes(nv)) return toast(t('يوجد متغير بهذا الاسم'));
   S.vars[S.vars.indexOf(old)] = nv;

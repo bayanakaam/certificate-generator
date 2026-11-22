@@ -275,3 +275,150 @@ tr.grp td{background:var(--accent-soft);color:#115e59;font-weight:800}
   .dlg{max-height:92dvh}
   #toast{bottom:76px}
 }
+
+/* =====================================================================
+   Large, easy-to-use interface (v2.1) — bigger text, bigger targets,
+   every button labeled. Placed last so it overrides the base sizes.
+   ===================================================================== */
+body{font-size:16px;line-height:1.6;grid-template-rows:70px 1fr auto}
+.topbar{gap:12px;padding:0 18px}
+.brand{font-size:20px}
+.brand .logo{width:38px;height:38px;border-radius:10px}
+.btn{height:42px;padding:0 15px;font-size:15px;border-radius:10px}
+.btn svg{width:19px;height:19px}
+.btn.small{height:38px;padding:0 12px;font-size:14.5px}
+.btn.tb{background:#fff;border-color:var(--line-2)}
+.btn.tb:hover:not(:disabled){background:#f1f5f9}
+.tb-group{display:flex;gap:6px}
+.btn-new{height:46px;padding:0 18px;background:#fff7ed;border:2px solid #fb923c;color:#9a3412;font-weight:800;font-size:16px}
+.btn-new:hover{background:#ffedd5;border-color:#f97316}
+.btn-new svg{width:21px;height:21px}
+.btn-go{height:46px;padding:0 20px;font-size:16px;font-weight:800}
+.btn-go svg{width:21px;height:21px}
+.btn.danger{background:var(--danger);border-color:var(--danger);color:#fff}
+.btn.danger:hover{background:#b91c1c}
+:focus-visible{outline:3px solid #f59e0b;outline-offset:2px}
+
+.layout{grid-template-columns:350px minmax(0,1fr) 330px}
+.side{padding:16px;gap:14px}
+.card{padding:16px}
+.card h3{font-size:17px}
+.step{width:28px;height:28px;font-size:14px}
+.link{font-size:15px}
+.fld{font-size:14px;gap:6px}
+.fld input:not([type=checkbox]):not([type=color]):not([type=range]),.fld select,.fld textarea,.hex{height:42px;font-size:16px}
+.fld textarea{height:auto}
+input[type=color]{width:46px;height:42px}
+.var-add input,.var-add .btn{height:46px;font-size:16px}
+.chip{font-size:14.5px;padding:6px 13px}
+.chip-label{font-size:13.5px}
+.note{font-size:13.5px}
+.warn{font-size:14px}
+.chk{font-size:15px;gap:10px}
+.chk input{width:20px;height:20px}
+.seg button{height:42px}
+.drop{padding:20px}
+.drop b{font-size:16px}
+.file-line{font-size:15px;padding:10px 12px;margin-bottom:8px}
+.file-actions{display:flex;gap:6px;margin-bottom:12px}
+.act{flex:1;height:40px;border:1px solid var(--line-2);border-radius:10px;background:#fff;font-weight:700;font-size:14.5px;cursor:pointer;display:inline-flex;align-items:center;justify-content:center;gap:6px;white-space:nowrap;padding:0 8px;color:inherit;font-family:inherit}
+.act:hover{background:#f1f5f9;border-color:#94a3b8}
+.act svg{width:17px;height:17px;flex:none}
+.act.danger{color:var(--danger);border-color:#fca5a5;background:#fff5f5}
+.act.danger:hover{background:#fee2e2;border-color:var(--danger)}
+.class-row{font-size:14.5px;padding:7px 12px}
+.vh b{font-size:15.5px}
+.vh .mini{padding:6px}
+.vh .mini svg{width:18px;height:18px}
+.vstat{font-size:13.5px}
+.vtag{font-size:13px;padding:2px 10px}
+.vitem select{height:40px;font-size:15px}
+.fitem{padding:10px 12px}
+.fitem .ft b{font-size:15px}
+.fitem .ft small{font-size:13px}
+.empty-li{font-size:14.5px}
+.stage-bar{padding:10px 14px}
+.pv select{height:40px;font-size:15px}
+.pv .info{font-size:14px}
+.icon-btn{width:40px;height:40px;border-radius:10px}
+.icon-btn svg{width:19px;height:19px}
+.zoom button{width:34px;height:34px;font-size:18px}
+.zoom span{font-size:14px}
+.hint{font-size:14px;padding:9px 14px}
+.empty-stage h2{font-size:26px}
+.empty-stage p{font-size:16px}
+.empty-actions .btn{height:48px;font-size:16px;padding:0 22px}
+.howto{font-size:15px}
+.empty-props{font-size:16px}
+.font-preview{font-size:24px}
+.swatches button{width:30px;height:30px}
+.dlg-h h2{font-size:20px}
+.dlg-h p{font-size:14.5px}
+.dlg-b h4{font-size:16px}
+.dlg-f .btn{height:46px;font-size:16px}
+.exp-classes label{font-size:15px;padding:10px 12px}
+.stat b{font-size:26px}
+.stat span{font-size:14px}
+.progress span{font-size:14.5px}
+.tpl span{font-size:16px}
+.tpl small{font-size:13.5px}
+.foot{font-size:14px;padding:9px 16px}
+.tour-pop{width:min(380px,calc(100vw - 24px));padding:18px 20px}
+.tour-pop h4{font-size:18px}
+.tour-pop p{font-size:15.5px}
+.tour-pop .btn{height:40px;font-size:15px}
+
+/* messages at the bottom: larger, and can carry an «تراجع» button */
+#toast{display:flex;align-items:center;gap:14px;font-size:16px;padding:14px 20px;border-radius:12px;bottom:28px;max-width:min(640px,92vw);line-height:1.6}
+#toast.has-act{pointer-events:auto}
+#toastAct{flex:none;height:38px;padding:0 16px;border-radius:9px;border:0;background:#fcd34d;color:#0f172a;font-weight:800;font-size:15px;cursor:pointer;font-family:inherit}
+#toastAct:hover{background:#fde68a}
+
+/* large confirm / rename window */
+dialog.ask{max-width:min(470px,94vw)}
+.ask .dlg-b{padding:26px 24px 8px;text-align:center}
+.ask-ic{width:60px;height:60px;border-radius:50%;display:grid;place-items:center;margin:0 auto 12px;background:var(--accent-soft);color:var(--accent)}
+.ask-ic.red{background:#fee2e2;color:var(--danger)}
+.ask-ic svg{width:30px;height:30px}
+.ask h2{font-size:21px;margin:0 0 8px}
+.ask p{margin:0;color:#334155;font-size:16.5px;line-height:1.8}
+.ask input{width:100%;height:50px;font-size:17px;border:2px solid var(--line-2);border-radius:10px;padding:0 14px;margin-top:14px;text-align:start}
+.ask input:focus{outline:none;border-color:var(--accent)}
+.ask .dlg-f{justify-content:center;gap:10px;padding:18px 20px 24px;border:0}
+.ask .dlg-f .btn{height:50px;font-size:17px;min-width:150px;font-weight:800}
+
+/* hide labels only when the screen is really too narrow for them */
+@media (max-width:1600px){ .brand small{display:none} }
+.card-h .link{white-space:nowrap}
+@media (max-width:1330px){ .brand .bname{display:none} }
+@media (max-width:1250px){
+  .layout{grid-template-columns:310px minmax(0,1fr) 300px}
+  .top-actions .lbl-md{display:inline}
+  .top-actions .btn:has(.lbl-md){padding:0 15px}
+}
+@media (max-width:1180px){
+  .top-actions .lbl-md{display:none}
+  .top-actions .btn:has(.lbl-md){padding:0 11px}
+}
+/* phone: two-row header, every button keeps its label under the icon */
+@media (max-width:900px){
+  body{grid-template-rows:auto 1fr auto auto}
+  .topbar{flex-wrap:wrap;padding:8px 10px 6px;gap:6px}
+  .brand .bname{display:inline;font-size:18px}
+  /* all buttons visible at once: 2 rows of 4, the two main actions first */
+  .top-actions{margin:0;width:100%;display:grid;grid-template-columns:repeat(6,minmax(0,1fr));gap:6px;padding-bottom:4px}
+  .top-actions > .btn,.tb-group > .btn{grid-column:span 2}
+  .tb-group{display:contents}
+  .top-actions .btn{flex-direction:column;height:56px;width:auto;min-width:0;padding:4px 2px;gap:3px;font-size:12.5px;border-radius:12px}
+  .top-actions .btn svg{width:22px;height:22px}
+  .top-actions .lbl,.top-actions .lbl-md{display:block!important;white-space:nowrap;line-height:1.2;overflow:hidden;text-overflow:ellipsis;max-width:100%}
+  #btnExport{order:-2;grid-column:span 3;height:54px;flex-direction:row;font-size:16px;gap:8px}
+  #btnNew{order:-1;grid-column:span 3;height:54px;flex-direction:row;font-size:16px;gap:8px}
+  .foot{font-size:12.5px;padding:6px 10px}
+  #btnExport .lbl,#btnNew .lbl{white-space:normal!important;text-align:center;overflow:visible}
+  html[lang=en] #btnExport,html[lang=en] #btnNew{font-size:14.5px}
+  .layout{grid-template-columns:minmax(0,1fr)}
+  .mnav button{height:62px;font-size:14px}
+  .mnav button svg{width:24px;height:24px}
+  #toast{bottom:84px}
+}
